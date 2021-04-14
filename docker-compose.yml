@@ -23,6 +23,8 @@ services:
         ports:
             - "9000:9000"
             - "9001:9001"
+        volumes:
+            - proxydata:/app/jwts
         environment: 
             - ENABLE_PROXY=${ENABLE_PROXY:-true}
             - WEB_PORT=9001 # web config localhost port
@@ -73,3 +75,4 @@ services:
         
 volumes: 
     pgdata:
+    proxydata:
