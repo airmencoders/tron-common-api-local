@@ -47,8 +47,13 @@ _BEFORE_ cloning this repo, follow the steps below to get an environment setup.
 
     *ACTIVE_PROFILE* - defaults to `production` which looks to use the postgres db to persist data across sessions.  If set to `development` the backend will use a Java-H2 in-mem database.
 
+7. To configure the proxy during runtime, navigate a web browser to http://localhost:9001 and the following screen will display
 
-7. To stop the stack, issue command:
+    ![Proxy Config](images/proxy.png)
+
+    On the proxy config screen, you can choose to enable/disable proxy and choose with JWT token is actively being injected into the inbound requests.  The active JWT can be edited from here as well and JWTs can be created/deleted too.
+
+8. To stop the stack, issue command:
 
     `docker-compose down`
 
