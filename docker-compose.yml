@@ -1,0 +1,75 @@
+version: "3.9"
+services:
+    frontend:
+        build: 
+            context: ../tron-common-api-dashboard
+            dockerfile: Dockerfile.fullstack
+        ports:
+            - "8080:8080"
+        environment:
+            - REACT_APP_API_BASE_URL="http://localhost:9000/"
+            - REACT_APP_API_VERSION_PREFIX=v1
+            - REACT_APP_API_PATH_PREFIX=api
+        depends_on: 
+            - backend
+            - proxy
+
+    proxy:
+        build: 
+            context: ../tron-common-api-proxy
+            dockerfile: Dockerfile.fullstack
+        depends_on:
+            - backend
+        ports:
+            - "9000:9000"
+            - "9001:9001"
+        environment: 
+            - ENABLE_PROXY=${ENABLE_PROXY:-true}
+            - WEB_PORT=9001 # web config localhost port
+            - LISTEN_ON_PORT=9000  # for traffic to be proxied from
+            - REAL_PROXY_URL=http://backend:8088 # service to proxy traffic to
+            - DEFAULT_JWT_FILE=admin.jwt # load the admin JWT by default (jt@test.mil)
+            - DEFAULT_NAMESPACE=istio-system # show proxied requests as coming from P1 SSO (emulated)
+
+    seeder:
+        build: 
+            context: ../tron-common-api-seeder
+            dockerfile: Dockerfile.fullstack
+        depends_on:
+            - backend
+            - proxy
+            - postgres
+        environment:            
+            - RUN_SEEDER=${RUN_SEEDER:-true} # whether to run the seeder or not
+            - PROXY=${PROXY:-http://proxy:9000/api/v1}
+
+    backend:
+        build:
+            context: ../tron-common-api
+            dockerfile: Dockerfile.fullstack
+        depends_on: 
+            - postgres
+        ports: 
+            - "8088:8088"
+        environment: 
+            - SECURITY_ENABLED=${SECURITY_ENABLED:-true}
+            - SPRING_LIQUIBASE_DROP_FIRST=${DROP_DB:-false}
+            - SPRING_PROFILES_ACTIVE=${ACTIVE_PROFILE:-production}
+            - SERVER_PORT=8088
+            - PGHOST=postgres
+            - PGPORT=5432
+            - PG_DATABASE=postgres
+            - APP_DB_ADMIN_PASSWORD=password
+            - PG_USER=postgres
+
+    postgres:
+        image: postgres
+        environment:
+            - POSTGRES_PASSWORD=password
+        volumes: 
+            - pgdata:/var/lib/postgresql/data # persist the psql db to local disk
+        ports: 
+            - 5432:5432
+        
+volumes: 
+    pgdata:
