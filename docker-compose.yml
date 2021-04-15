@@ -4,12 +4,13 @@ services:
         build: 
             context: ../tron-common-api-dashboard
             dockerfile: Dockerfile.fullstack
+            args:
+                - REACT_APP_API_BASE_URL="http://localhost:${PROXY_PORT:-9000}/"
+                - REACT_APP_API_VERSION_PREFIX=v1
+                - REACT_APP_API_PATH_PREFIX=api
+                - PROXY_PORT=${PROXY_PORT:-9000}
         ports:
-            - "8080:8080"
-        environment:
-            - REACT_APP_API_BASE_URL="http://localhost:9000/"
-            - REACT_APP_API_VERSION_PREFIX=v1
-            - REACT_APP_API_PATH_PREFIX=api
+            - "${FRONTEND_PORT:-8080}:8080"
         depends_on: 
             - backend
             - proxy
@@ -21,15 +22,15 @@ services:
         depends_on:
             - backend
         ports:
-            - "9000:9000"
-            - "9001:9001"
+            - "${PROXY_PORT:-9000}:9000"
+            - "${PROXY_CONFIG:-9001}:9001"
         volumes:
             - proxydata:/app/jwts
         environment: 
             - ENABLE_PROXY=${ENABLE_PROXY:-true}
-            - WEB_PORT=9001 # web config localhost port
-            - LISTEN_ON_PORT=9000  # for traffic to be proxied from
-            - REAL_PROXY_URL=http://backend:8088 # service to proxy traffic to
+            - WEB_PORT=${PROXY_CONFIG:-9001} # web config localhost port
+            - LISTEN_ON_PORT=${PROXY_PORT:-9000}  # for traffic to be proxied from
+            - REAL_PROXY_URL=http://backend:${BACKEND_PORT:-8088} # service to proxy traffic to
             - DEFAULT_JWT_FILE=admin.jwt # load the admin JWT by default (jt@test.mil)
             - DEFAULT_NAMESPACE=istio-system # show proxied requests as coming from P1 SSO (emulated)
 
@@ -43,7 +44,8 @@ services:
             - postgres
         environment:            
             - RUN_SEEDER=${RUN_SEEDER:-true} # whether to run the seeder or not
-            - PROXY=${PROXY:-http://proxy:9000/api/v1}
+            - BACKEND_PORT=${BACKEND_PORT:-8088}
+            - PROXY=${PROXY} # URL to the proxy
 
     backend:
         build:
@@ -52,14 +54,14 @@ services:
         depends_on: 
             - postgres
         ports: 
-            - "8088:8088"
+            - "${BACKEND_PORT:-8088}:8088"
         environment: 
             - SECURITY_ENABLED=${SECURITY_ENABLED:-true}
             - SPRING_LIQUIBASE_DROP_FIRST=${DROP_DB:-false}
             - SPRING_PROFILES_ACTIVE=${ACTIVE_PROFILE:-production}
-            - SERVER_PORT=8088
+            - SERVER_PORT=${BACKEND_PORT:-8088}
             - PGHOST=postgres
-            - PGPORT=5432
+            - PGPORT=${PG_DB_PORT:-5432}
             - PG_DATABASE=postgres
             - APP_DB_ADMIN_PASSWORD=password
             - PG_USER=postgres
@@ -71,7 +73,7 @@ services:
         volumes: 
             - pgdata:/var/lib/postgresql/data # persist the psql db to local disk
         ports: 
-            - 5432:5432
+            - ${PG_DB_PORT:-5432}:5432
         
 volumes: 
     pgdata:
