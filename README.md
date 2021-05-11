@@ -15,6 +15,9 @@ _BEFORE_ cloning this repo, follow the steps below to get an environment setup.
     + tron-common-api
     + tron-common-api-dashboard
     + tron-common-api-proxy
+    + tron-common-api-seeder
+
+    NOTE: You can also run the `get-common.sh` script from the `tron-common-api-local` directory.  It will make the repos needed one-level up and/or update those if they already exist.  You can run the script with `./get-common.sh <TOKEN>` where `<TOKEN>` is your IL2 Gitlab Access Token (note this script will not run on Windows, unless you run it in the WSL (Subsystem for Linux shell))
 
 3. Once the repos are cloned into your directory of choosing (and again, the above folders/repos must be on the same directory level like shown above), login into the code IL2 GitLab's container registry with the following command:
 

@@ -64,7 +64,9 @@ services:
             - PGPORT=${PG_DB_PORT:-5432}
             - PG_DATABASE=postgres
             - APP_DB_ADMIN_PASSWORD=password
+            - APP_DB_RW_PASSWORD=password
             - PG_USER=postgres
+            - PG_RW_USER=postgres
 
     postgres:
         image: postgres
