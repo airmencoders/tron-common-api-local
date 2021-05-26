@@ -21,7 +21,7 @@ _BEFORE_ cloning this repo, follow the steps below to get an environment setup.
 
 3. Once the repos are cloned into your directory of choosing (and again, the above folders/repos must be on the same directory level like shown above), login into the code IL2 GitLab's container registry with the following command:
 
-    `docker login registry.il2.dso.mil -u gitlab_ci_token -u <token>`
+    `docker login registry.il2.dso.mil -u gitlab_ci_token -p <token>`
 
     where `<token>` is your GitLab token string (token must have registry access attributes chosen, if you're not sure, you can check in your GitLab account settings.  If it does not have these, simply create a new token that does)
 
